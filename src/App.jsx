@@ -1,4 +1,5 @@
 import "./Expense.css";
+import { Form } from "./Form";
 
 const Expense = ({expense}) => {
   return <div className={`expense-card ${expense.expenseType}`}>
@@ -32,6 +33,7 @@ const App = () => {
   }];
 
   return <div>
+    <Form></Form>
     <Expenses expenses={expenses}></Expenses>
     </div>
 };
