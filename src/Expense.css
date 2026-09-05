@@ -1,0 +1,61 @@
+.expense-list {
+  max-width: 640px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.expense-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #4f46e5;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.expense-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.expense-card.credit {
+  border-left-color: #10b981;
+}
+
+.expense-card.debit {
+  border-left-color: #ef4444;
+}
+
+.expense-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.expense-field.category {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #1f2937;
+}
+
+.expense-field.amount {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.expense-field.expenseType {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+}
+
+.expense-field.date {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
