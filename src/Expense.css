@@ -45,6 +45,10 @@ div:has(> h2) label::after {
   display: block;
 }
 
+.required {
+  color: #ef4444;
+}
+
 div:has(> h2) input,
 div:has(> h2) select {
   width: 100%;
@@ -82,9 +86,9 @@ div:has(> h2) button:hover {
 }
 
 .expense-card {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 16px;
   padding: 16px 20px;
   margin-bottom: 12px;
@@ -111,6 +115,9 @@ div:has(> h2) button:hover {
 .expense-field {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .expense-field.category {

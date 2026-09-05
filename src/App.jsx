@@ -1,3 +1,4 @@
+import { useState } from "react";
 import "./Expense.css";
 import { Form } from "./Form";
 
@@ -13,27 +14,32 @@ const Expense = ({expense}) => {
 const Expenses = ({expenses}) => {
   console.log(expenses);
   return <div className="expense-list">
-    {expenses.map(expense => <Expense id={expense.id} expense={expense}></Expense>)}
+    {expenses.map(expense => <Expense key={expense.id} expense={expense}></Expense>)}
   </div>
 }
 
 const App = () => {
-  const expenses = [{
+  const initialExpenses = [{
     "id": 1,
     "category": "Food",
     "amount": 1500,
-    "date": "05-09-2026,  Saturday",
+    "date": "05-09-2026",
     "expenseType": "debit",
   }, {
     "id": 2,
     "category": "Food",
     "amount": 1500,
-    "date": "05-09-2026,  Saturday",
+    "date": "05-09-2026",
     "expenseType": "credit",
   }];
+  const [expenses, setExpenses] = useState(initialExpenses);
+
+  const handleAddExpense = (expense) => {
+    setExpenses((prevExpenses) => [...prevExpenses, expense]);
+  };
 
   return <div>
-    <Form></Form>
+    <Form onAddExpense={handleAddExpense}></Form>
     <Expenses expenses={expenses}></Expenses>
     </div>
 };
