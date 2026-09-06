@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./Expense.css";
-import { Form } from "./Form";
+import { Form } from "./components/Form.jsx";
 import { Expenses } from "./components/Expenses.jsx";
 import { Filter } from "./components/Filter.jsx";
 import { Sort } from "./components/Sort.jsx";
@@ -28,13 +28,18 @@ const App = () => {
   const [sortKey, setSortKey] = useState("none");
   const [editingExpense, setEditingExpense] = useState(null);
 
-  const visibleExpenses = sortExpenses(filterExpenses(expenses, filter), sortKey);
+  const visibleExpenses = sortExpenses(
+    filterExpenses(expenses, filter),
+    sortKey,
+  );
   const summary = summarizeExpenses(visibleExpenses);
 
   const handleSaveExpense = (expense) => {
     setExpenses((prevExpenses) =>
       editingExpense
-        ? prevExpenses.map((e) => e.id === editingExpense.id ? { ...expense, id: editingExpense.id } : e)
+        ? prevExpenses.map((e) =>
+          e.id === editingExpense.id ? { ...expense, id: editingExpense.id } : e
+        )
         : [...prevExpenses, { ...expense, id: crypto.randomUUID() }]
     );
     setEditingExpense(null);
@@ -43,17 +48,29 @@ const App = () => {
   const handleStartEdit = (expense) => setEditingExpense(expense);
   const handleCancelEdit = () => setEditingExpense(null);
 
-  return <div>
-    <Form editingExpense={editingExpense} onSave={handleSaveExpense} onCancel={handleCancelEdit}></Form>
-    <section className="expenses-panel">
-      <div className="expenses-toolbar">
-        <Filter value={filter} onChange={setFilter}></Filter>
-        <Sort value={sortKey} onChange={setSortKey}></Sort>
-      </div>
-      <Summary totalCredit={summary.totalCredit} totalDebit={summary.totalDebit}></Summary>
-      <Expenses expenses={visibleExpenses} onEdit={handleStartEdit}></Expenses>
-    </section>
-  </div>
+  return (
+    <div>
+      <Form
+        editingExpense={editingExpense}
+        onSave={handleSaveExpense}
+        onCancel={handleCancelEdit}
+      >
+      </Form>
+      <section className="expenses-panel">
+        <div className="expenses-toolbar">
+          <Filter value={filter} onChange={setFilter}></Filter>
+          <Sort value={sortKey} onChange={setSortKey}></Sort>
+        </div>
+        <Summary
+          totalCredit={summary.totalCredit}
+          totalDebit={summary.totalDebit}
+        >
+        </Summary>
+        <Expenses expenses={visibleExpenses} onEdit={handleStartEdit}>
+        </Expenses>
+      </section>
+    </div>
+  );
 };
 
 export default App;

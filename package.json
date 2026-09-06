@@ -15,13 +15,31 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src test --ext .js,.jsx",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
+    ],
+    "globals": {
+      "globalThis": "readonly"
+    },
+    "overrides": [
+      {
+        "files": [
+          "test/**/*.{js,jsx}",
+          "src/**/*.test.{js,jsx}",
+          "src/**/__tests__/**/*.{js,jsx}"
+        ],
+        "rules": {
+          "testing-library/no-node-access": "off",
+          "testing-library/no-container": "off"
+        }
+      }
     ]
   },
   "browserslist": {
