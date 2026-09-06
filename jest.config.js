@@ -10,5 +10,6 @@ const config = createJestConfig(
 config.roots = [path.resolve(__dirname, 'test')];
 config.testMatch = ['<rootDir>/test/**/*.{spec,test}.{js,jsx,ts,tsx}'];
 config.collectCoverageFrom = ['src/**/*.{js,jsx}'];
+config.setupFilesAfterEnv = [path.resolve(__dirname, 'test/setupTests.js')];
 
 module.exports = config;

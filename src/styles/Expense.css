@@ -159,6 +159,12 @@ div:has(> h2) button:hover {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+.expense-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .edit-button {
   padding: 6px 12px;
   border: 1px solid #d1d5db;
@@ -172,6 +178,21 @@ div:has(> h2) button:hover {
 .edit-button:hover {
   background: #eef2ff;
   border-color: #4f46e5;
+}
+
+.delete-button {
+  padding: 6px 12px;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  background: #fff;
+  color: #ef4444;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
 }
 
 .expense-card:hover {

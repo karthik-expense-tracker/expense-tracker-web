@@ -7,7 +7,7 @@ const expenses = [
 ];
 
 test("renders one card per expense with all fields", () => {
-  render(<Expenses expenses={expenses} onEdit={() => {}} />);
+  render(<Expenses expenses={expenses} onEdit={() => {}} onDelete={() => {}} />);
   expect(screen.getByText("Food")).toBeInTheDocument();
   expect(screen.getByText("1500")).toBeInTheDocument();
   expect(screen.getByText("credit")).toBeInTheDocument();
@@ -18,7 +18,14 @@ test("renders one card per expense with all fields", () => {
 
 test("calls onEdit with the expense when Edit is clicked", () => {
   const onEdit = jest.fn();
-  render(<Expenses expenses={expenses} onEdit={onEdit} />);
+  render(<Expenses expenses={expenses} onEdit={onEdit} onDelete={() => {}} />);
   fireEvent.click(screen.getAllByRole("button", { name: "Edit" })[1]);
   expect(onEdit).toHaveBeenCalledWith(expenses[1]);
+});
+
+test("calls onDelete with the expense when Delete is clicked", () => {
+  const onDelete = jest.fn();
+  render(<Expenses expenses={expenses} onEdit={() => {}} onDelete={onDelete} />);
+  fireEvent.click(screen.getAllByRole("button", { name: "Delete" })[0]);
+  expect(onDelete).toHaveBeenCalledWith(expenses[0]);
 });

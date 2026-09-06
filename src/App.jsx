@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./Expense.css";
+import "./styles/Expense.css";
 import { Form } from "./components/Form.jsx";
 import { Expenses } from "./components/Expenses.jsx";
 import { Filter } from "./components/Filter.jsx";
@@ -47,6 +47,10 @@ const App = () => {
 
   const handleStartEdit = (expense) => setEditingExpense(expense);
   const handleCancelEdit = () => setEditingExpense(null);
+  const handleDeleteExpense = (expense) => {
+    setExpenses((prevExpenses) => prevExpenses.filter((e) => e.id !== expense.id));
+  };
+
 
   return (
     <div>
@@ -66,7 +70,7 @@ const App = () => {
           totalDebit={summary.totalDebit}
         >
         </Summary>
-        <Expenses expenses={visibleExpenses} onEdit={handleStartEdit}>
+        <Expenses expenses={visibleExpenses} onEdit={handleStartEdit} onDelete={handleDeleteExpense}>
         </Expenses>
       </section>
     </div>

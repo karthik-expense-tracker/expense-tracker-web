@@ -1,12 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { Form } from "../../src/components/Form.jsx";
-
-const fillForm = (container, values) => {
-  fireEvent.change(container.querySelector('[name="category"]'), { target: { value: values.category } });
-  fireEvent.change(container.querySelector('[name="amount"]'), { target: { value: values.amount } });
-  fireEvent.change(container.querySelector('[name="date"]'), { target: { value: values.date } });
-  fireEvent.change(container.querySelector('[name="expenseType"]'), { target: { value: values.expenseType } });
-};
+import { fillForm } from "../helpers/formHelpers.js";
 
 test("renders add-mode form with no cancel button", () => {
   render(<Form onSave={() => {}} onCancel={() => {}} />);

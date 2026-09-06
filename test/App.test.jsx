@@ -1,19 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import App from "../src/App.jsx";
-
-const formFields = (container) => ({
-  category: container.querySelector('[name="category"]'),
-  amount: container.querySelector('[name="amount"]'),
-  date: container.querySelector('[name="date"]'),
-  expenseType: container.querySelector('[name="expenseType"]'),
-});
-
-const fillForm = (container, values) => {
-  fireEvent.change(formFields(container).category, { target: { value: values.category } });
-  fireEvent.change(formFields(container).amount, { target: { value: values.amount } });
-  fireEvent.change(formFields(container).date, { target: { value: values.date } });
-  fireEvent.change(formFields(container).expenseType, { target: { value: values.expenseType } });
-};
+import { formFields, fillForm } from "./helpers/formHelpers.js";
 
 const submit = () => fireEvent.click(screen.getByRole("button", { name: "Submit" }));
 
@@ -109,4 +96,18 @@ test("edits an existing expense", () => {
   expect(screen.getByRole("heading", { name: "Enter expense details" })).toBeInTheDocument();
   expect(screen.getAllByText("Food")).toHaveLength(1);
   expect(screen.getByText("Groceries")).toBeInTheDocument();
+});
+
+test("deletes an expense and updates the summary", () => {
+  render(<App />);
+
+  expect(screen.getAllByText("Food")).toHaveLength(2);
+  expect(screen.getByText("Debit: 1500")).toBeInTheDocument();
+
+  fireEvent.click(screen.getAllByRole("button", { name: "Delete" })[0]);
+  fireEvent.click(screen.getAllByRole("button", { name: "Delete" })[0]);
+
+  expect(screen.queryAllByText("Food")).toHaveLength(0);
+  expect(screen.getByText("Debit: 0")).toBeInTheDocument();
+  expect(screen.getByText("Credit: 0")).toBeInTheDocument();
 });
