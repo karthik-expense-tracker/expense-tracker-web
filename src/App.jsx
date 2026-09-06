@@ -1,22 +1,13 @@
 import { useState } from "react";
 import "./Expense.css";
 import { Form } from "./Form";
-
-const Expense = ({expense}) => {
-  return <div className={`expense-card ${expense.expenseType}`}>
-    <div className="expense-field category">{expense.category}</div>
-    <div className="expense-field amount">{expense.amount}</div>
-    <div className="expense-field expenseType">{expense.expenseType}</div>
-    <div className="expense-field date">{expense.date}</div>
-  </div>
-}
-
-const Expenses = ({expenses}) => {
-  console.log(expenses);
-  return <div className="expense-list">
-    {expenses.map(expense => <Expense key={expense.id} expense={expense}></Expense>)}
-  </div>
-}
+import { Expenses } from "./components/Expenses.jsx";
+import { Filter } from "./components/Filter.jsx";
+import { Sort } from "./components/Sort.jsx";
+import { Summary } from "./components/Summary.jsx";
+import { filterExpenses } from "./services/expenseFilters.js";
+import { sortExpenses } from "./services/expenseSorter.js";
+import { summarizeExpenses } from "./services/expenseSummary.js";
 
 const App = () => {
   const initialExpenses = [{
@@ -33,15 +24,36 @@ const App = () => {
     "expenseType": "credit",
   }];
   const [expenses, setExpenses] = useState(initialExpenses);
+  const [filter, setFilter] = useState("all");
+  const [sortKey, setSortKey] = useState("none");
+  const [editingExpense, setEditingExpense] = useState(null);
 
-  const handleAddExpense = (expense) => {
-    setExpenses((prevExpenses) => [...prevExpenses, expense]);
+  const visibleExpenses = sortExpenses(filterExpenses(expenses, filter), sortKey);
+  const summary = summarizeExpenses(visibleExpenses);
+
+  const handleSaveExpense = (expense) => {
+    setExpenses((prevExpenses) =>
+      editingExpense
+        ? prevExpenses.map((e) => e.id === editingExpense.id ? { ...expense, id: editingExpense.id } : e)
+        : [...prevExpenses, { ...expense, id: crypto.randomUUID() }]
+    );
+    setEditingExpense(null);
   };
 
+  const handleStartEdit = (expense) => setEditingExpense(expense);
+  const handleCancelEdit = () => setEditingExpense(null);
+
   return <div>
-    <Form onAddExpense={handleAddExpense}></Form>
-    <Expenses expenses={expenses}></Expenses>
-    </div>
+    <Form editingExpense={editingExpense} onSave={handleSaveExpense} onCancel={handleCancelEdit}></Form>
+    <section className="expenses-panel">
+      <div className="expenses-toolbar">
+        <Filter value={filter} onChange={setFilter}></Filter>
+        <Sort value={sortKey} onChange={setSortKey}></Sort>
+      </div>
+      <Summary totalCredit={summary.totalCredit} totalDebit={summary.totalDebit}></Summary>
+      <Expenses expenses={visibleExpenses} onEdit={handleStartEdit}></Expenses>
+    </section>
+  </div>
 };
 
 export default App;
