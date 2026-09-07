@@ -4,7 +4,7 @@ import {
   toDateInputValue,
 } from "../services/submitExpenses.js";
 
-export const Form = ({ editingExpense, onSave, onCancel }) => {
+export const Form = ({ editingExpense, onSave, onCancel, isSubmitting = false }) => {
   const [submitCount, setSubmitCount] = useState(0);
 
   const handleSubmit = (e) => {
@@ -68,9 +68,11 @@ export const Form = ({ editingExpense, onSave, onCancel }) => {
           <option value="credit">Credit</option>
           <option value="debit">Debit</option>
         </select>
-        <button type="submit">{editingExpense ? "Update" : "Submit"}</button>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Saving..." : (editingExpense ? "Update" : "Submit")}
+        </button>
         {editingExpense && (
-          <button type="button" className="cancel-button" onClick={onCancel}>
+          <button type="button" className="cancel-button" onClick={onCancel} disabled={isSubmitting}>
             Cancel
           </button>
         )}
