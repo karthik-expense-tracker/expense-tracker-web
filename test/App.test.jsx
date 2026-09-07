@@ -1,6 +1,7 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "../src/App.jsx";
+import { ToastProvider } from "../src/components/Toasts.jsx";
 import {
   createExpense,
   deleteExpense,
@@ -10,6 +11,7 @@ import {
 import { formFields, fillForm } from "./helpers/formHelpers.js";
 
 jest.mock("../src/services/api.js", () => ({
+  ...jest.requireActual("../src/services/api.js"),
   fetchExpenses: jest.fn(),
   createExpense: jest.fn(),
   updateExpense: jest.fn(),
@@ -60,7 +62,9 @@ const renderWithProvider = () => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
-      <App />
+      <ToastProvider>
+        <App />
+      </ToastProvider>
     </QueryClientProvider>
   );
 };
@@ -209,21 +213,108 @@ test("edits an existing expense", async () => {
   expect(screen.getAllByText("Food")).toHaveLength(1);
 });
 
-test("deletes an expense and updates the summary", async () => {
+test("deletes an expense after confirmation", async () => {
   await renderApp();
 
   expect(screen.getAllByText("Food")).toHaveLength(2);
   expect(screen.getByText("Debit: 1500")).toBeInTheDocument();
 
   fireEvent.click(screen.getAllByRole("button", { name: "Delete" })[0]);
-  await screen.findByText("Debit: 0");
-  fireEvent.click(screen.getAllByRole("button", { name: "Delete" })[0]);
-  await screen.findByText("Credit: 0");
 
-  expect(deleteExpense).toHaveBeenCalledTimes(2);
+  const dialog = screen.getByRole("dialog");
+  expect(dialog).toHaveTextContent('Delete "Food"?');
+  fireEvent.click(within(dialog).getByRole("button", { name: "Delete" }));
+
+  expect(await screen.findByText("Debit: 0")).toBeInTheDocument();
+  expect(deleteExpense.mock.calls.map(([id]) => id)).toEqual([1]);
+  expect(screen.getAllByText("Food")).toHaveLength(1);
+
+  fireEvent.click(screen.getAllByRole("button", { name: "Delete" })[0]);
+  fireEvent.click(
+    within(screen.getByRole("dialog")).getByRole("button", { name: "Delete" })
+  );
+
+  expect(await screen.findByText("Credit: 0")).toBeInTheDocument();
   expect(deleteExpense.mock.calls.map(([id]) => id)).toEqual([1, 2]);
   expect(screen.queryAllByText("Food")).toHaveLength(0);
-  expect(screen.getByText("Credit: 0")).toBeInTheDocument();
+});
+
+test("canceling delete keeps the expense", async () => {
+  await renderApp();
+
+  fireEvent.click(screen.getAllByRole("button", { name: "Delete" })[0]);
+  fireEvent.click(
+    within(screen.getByRole("dialog")).getByRole("button", { name: "Cancel" })
+  );
+
+  expect(deleteExpense).not.toHaveBeenCalled();
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  expect(screen.getAllByText("Food")).toHaveLength(2);
+});
+
+test("shows a success toast after adding an expense", async () => {
+  const { container } = await renderApp();
+
+  fillForm(container, {
+    category: "Travel",
+    amount: "500",
+    date: "2026-09-10",
+    expenseType: "debit",
+  });
+  submit();
+
+  expect(await screen.findByText("Expense added")).toBeInTheDocument();
+});
+
+test("shows an error toast when saving fails", async () => {
+  createExpense.mockImplementation(() => Promise.reject(new Error("save failed")));
+  const { container } = await renderApp();
+
+  fillForm(container, {
+    category: "Travel",
+    amount: "500",
+    date: "2026-09-10",
+    expenseType: "debit",
+  });
+  submit();
+
+  expect(await screen.findByText("save failed")).toBeInTheDocument();
+  expect(screen.queryByText("Travel")).not.toBeInTheDocument();
+});
+
+test("shows the backend error message in the toast", async () => {
+  createExpense.mockImplementation(() =>
+    Promise.reject({
+      message: "Request failed with status code 400",
+      response: { data: "Invalid amount in expense" },
+    })
+  );
+  const { container } = await renderApp();
+
+  fillForm(container, {
+    category: "Food",
+    amount: "0",
+    date: "2026-09-10",
+    expenseType: "debit",
+  });
+  submit();
+
+  expect(await screen.findByText("Invalid amount in expense")).toBeInTheDocument();
+  expect(screen.queryByText("Request failed with status code 400")).not.toBeInTheDocument();
+});
+
+test("shows a spinner while loading expenses", async () => {
+  let resolveFetch;
+  fetchExpenses.mockImplementation(
+    () => new Promise((resolve) => { resolveFetch = resolve; })
+  );
+
+  renderWithProvider();
+  expect(await screen.findByText("Loading expenses...")).toBeInTheDocument();
+
+  resolveFetch([]);
+  expect(await screen.findByText("Credit: 0")).toBeInTheDocument();
+  expect(screen.queryByText("Loading expenses...")).not.toBeInTheDocument();
 });
 
 test("loads expenses from the server on mount", async () => {

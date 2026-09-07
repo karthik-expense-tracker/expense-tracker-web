@@ -15,3 +15,14 @@ export const updateExpense = ({ id, expense }) =>
 
 export const deleteExpense = (id) =>
   client.delete(`/delete-expense/${id}`).then((res) => res.data);
+
+export const getApiErrorMessage = (error, fallback) => {
+  const data = error?.response?.data;
+  if (typeof data === "string" && data.trim()) {
+    return data;
+  }
+  if (typeof data?.message === "string" && data.message.trim()) {
+    return data.message;
+  }
+  return error?.message ?? fallback;
+};
