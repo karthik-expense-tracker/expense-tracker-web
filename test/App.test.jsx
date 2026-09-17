@@ -222,7 +222,7 @@ test("deletes an expense after confirmation", async () => {
   fireEvent.click(screen.getAllByRole("button", { name: "Delete" })[0]);
 
   const dialog = screen.getByRole("dialog");
-  expect(dialog).toHaveTextContent('Delete "Food"?');
+  expect(dialog).toHaveTextContent("Delete \"Food\"?");
   fireEvent.click(within(dialog).getByRole("button", { name: "Delete" }));
 
   expect(await screen.findByText("Debit: 0")).toBeInTheDocument();

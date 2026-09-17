@@ -1,0 +1,29 @@
+{
+  "extends": [
+    "react-app",
+    "react-app/jest"
+  ],
+  "globals": {
+    "globalThis": "readonly"
+  },
+  "rules": {
+    "semi": ["error", "always"],
+    "quotes": ["error", "double", { "avoidEscape": true }],
+    "no-console": "warn",
+    "no-trailing-spaces": "error",
+    "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 0, "maxBOF": 0 }]
+  },
+  "overrides": [
+    {
+      "files": [
+        "test/**/*.{js,jsx}",
+        "src/**/*.test.{js,jsx}",
+        "src/**/__tests__/**/*.{js,jsx}"
+      ],
+      "rules": {
+        "testing-library/no-node-access": "off",
+        "testing-library/no-container": "off"
+      }
+    }
+  ]
+}

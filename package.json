@@ -22,28 +22,6 @@
     "lint": "eslint src test --ext .js,.jsx",
     "eject": "react-scripts eject"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ],
-    "globals": {
-      "globalThis": "readonly"
-    },
-    "overrides": [
-      {
-        "files": [
-          "test/**/*.{js,jsx}",
-          "src/**/*.test.{js,jsx}",
-          "src/**/__tests__/**/*.{js,jsx}"
-        ],
-        "rules": {
-          "testing-library/no-node-access": "off",
-          "testing-library/no-container": "off"
-        }
-      }
-    ]
-  },
   "browserslist": {
     "production": [
       ">0.2%",

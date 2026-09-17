@@ -40,10 +40,10 @@ test("clears the form after a successful submit", () => {
   });
   fireEvent.click(screen.getByRole("button", { name: "Submit" }));
 
-  expect(container.querySelector('[name="category"]').value).toBe("");
-  expect(container.querySelector('[name="amount"]').value).toBe("");
-  expect(container.querySelector('[name="date"]').value).toBe("");
-  expect(container.querySelector('[name="expenseType"]').value).toBe("");
+  expect(container.querySelector("[name=\"category\"]").value).toBe("");
+  expect(container.querySelector("[name=\"amount\"]").value).toBe("");
+  expect(container.querySelector("[name=\"date\"]").value).toBe("");
+  expect(container.querySelector("[name=\"expenseType\"]").value).toBe("");
 });
 
 test("renders edit-mode form with prefilled values", () => {
@@ -59,10 +59,10 @@ test("renders edit-mode form with prefilled values", () => {
   expect(screen.getByRole("heading", { name: "Edit expense details" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Update" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
-  expect(container.querySelector('[name="category"]').value).toBe("Travel");
-  expect(container.querySelector('[name="amount"]').value).toBe("800");
-  expect(container.querySelector('[name="date"]').value).toBe("2026-09-06");
-  expect(container.querySelector('[name="expenseType"]').value).toBe("debit");
+  expect(container.querySelector("[name=\"category\"]").value).toBe("Travel");
+  expect(container.querySelector("[name=\"amount\"]").value).toBe("800");
+  expect(container.querySelector("[name=\"date\"]").value).toBe("2026-09-06");
+  expect(container.querySelector("[name=\"expenseType\"]").value).toBe("debit");
 });
 
 test("submits edits via onSave with normalized data", () => {
