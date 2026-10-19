@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 const ToastContext = createContext(null);
 
@@ -26,7 +27,7 @@ export const ToastProvider = ({ children }) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
 
   const showToast = (message, type = "success") => {
-    setToasts((prev) => [...prev, { id: crypto.randomUUID(), message, type }]);
+    setToasts((prev) => [...prev, { id: uuidv4(), message, type }]);
   };
 
   useEffect(() => {
