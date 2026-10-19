@@ -78,7 +78,7 @@ jobs:
   
   stop-instance:
     needs: [start-instance, test]
-    if: ${{ always() && !cancelled() && needs.start-instance.result == 'success' }}
+    if: ${{ always() && !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - name:  Checkout 
@@ -89,4 +89,4 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
       - name: Stop sonar scan instance
-        run: aws ec2 stop-instance --instance-ids ${{ secrets.INSTANCE_ID }}
+        run: aws ec2 stop-instances --instance-ids ${{ secrets.INSTANCE_ID }}
