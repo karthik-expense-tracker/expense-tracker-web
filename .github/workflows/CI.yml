@@ -6,8 +6,36 @@ on:
     branches: [main]
   pull_request:
 
+concurrency:
+  group: ci-sonar-instance
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write 
+
 jobs: 
+  start-instance:
+    runs-on: ubuntu-latest
+    steps:
+      - name:  Checkout 
+        uses: actions/checkout@v4
+      - name: configure AWS 
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with: 
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name : Start sonar scan instance
+        run: aws ec2 start-instances --instance-ids ${{ secrets.INSTANCE_ID }}
+
+      
+      - name: Wait for instance to be ready
+        run: aws ec2 wait instance-status-ok --instance-ids "${{ secrets.INSTANCE_ID }}"
+
+
   test:
+    needs: [start-instance]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,8 +57,36 @@ jobs:
       - name: Run linter
         run: npm run lint
 
+      - name: Wait for SonarQube to accept requests
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf "${{ secrets.SONARQUBE_HOST }}/api/server/version" > /dev/null; then
+              echo "SonarQube is ready"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "SonarQube did not become ready in time" >&2
+          exit 1
+
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
         env:
           SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONARQUBE_HOST }}
+  
+  stop-instance:
+    needs: [start-instance, test]
+    if: ${{ always() && !cancelled() && needs.start-instance.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name:  Checkout 
+        uses: actions/checkout@v4
+      - name: configure AWS 
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with: 
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Stop sonar scan instance
+        run: aws ec2 stop-instance --instance-ids ${{ secrets.INSTANCE_ID }}
