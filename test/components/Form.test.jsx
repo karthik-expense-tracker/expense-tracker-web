@@ -101,3 +101,12 @@ test("cancels without saving", () => {
   expect(onCancel).toHaveBeenCalled();
   expect(onSave).not.toHaveBeenCalled();
 });
+
+test("associates every label with its form control", () => {
+  render(<Form onSave={() => {}} onCancel={() => {}} />);
+
+  expect(screen.getByLabelText(/category/i)).toHaveAttribute("name", "category");
+  expect(screen.getByLabelText(/amount/i)).toHaveAttribute("name", "amount");
+  expect(screen.getByLabelText(/enter date/i)).toHaveAttribute("name", "date");
+  expect(screen.getByLabelText(/expense type/i)).toHaveAttribute("name", "expenseType");
+});
