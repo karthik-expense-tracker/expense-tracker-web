@@ -17,6 +17,8 @@ permissions:
 jobs: 
   start-instance:
     runs-on: ubuntu-latest
+    outputs:
+      sonar-host: ${{ steps.sonar-host.outputs.url }}
     steps:
       - name:  Checkout 
         uses: actions/checkout@v4
@@ -33,6 +35,18 @@ jobs:
       - name: Wait for instance to be ready
         run: aws ec2 wait instance-status-ok --instance-ids "${{ secrets.INSTANCE_ID }}"
 
+      - name: Get SonarQube host
+        id: sonar-host
+        run: |
+          public_ip=$(aws ec2 describe-instances \
+            --instance-ids "${{ secrets.INSTANCE_ID }}" \
+            --query 'Reservations[0].Instances[0].PublicIpAddress' \
+            --output text)
+          if [[ -z "$public_ip" || "$public_ip" == "None" ]]; then
+            echo "EC2 instance has no public IP address" >&2
+            exit 1
+          fi
+          echo "url=http://${public_ip}:9000" >> "$GITHUB_OUTPUT"
 
   test:
     needs: [start-instance]
@@ -58,9 +72,11 @@ jobs:
         run: npm run lint
 
       - name: Wait for SonarQube to accept requests
+        env:
+          SONAR_HOST_URL: ${{ needs.start-instance.outputs.sonar-host }}
         run: |
           for i in $(seq 1 60); do
-            if curl -sf "${{ secrets.SONARQUBE_HOST }}/api/server/version" > /dev/null; then
+            if curl -sf "$SONAR_HOST_URL/api/server/version" > /dev/null; then
               echo "SonarQube is ready"
               exit 0
             fi
@@ -74,7 +90,7 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
         env:
           SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONARQUBE_HOST }}
+          SONAR_HOST_URL: ${{ needs.start-instance.outputs.sonar-host }}
   
   stop-instance:
     needs: [start-instance, test]
